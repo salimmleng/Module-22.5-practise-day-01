@@ -26,38 +26,6 @@ from datetime import datetime
 
 
 
-
-
-
-
-
-
-# modified
-
-class TransferMoneyView(LoginRequiredMixin, View):
-    form_class = TransferForm
-    template_name = 'transactions/transfer_form.html'
-
-    def get(self, request):
-        form = self.form_class(account=request.user.account)
-        return render(request, self.template_name, {'form': form})
-
-    def post(self, request):
-        form = self.form_class(request.POST, account=request.user.account)
-        if form.is_valid():
-            recipient, amount = form.save(commit=False)
-            
-            messages.success(request, f'Successfully transferred {"{:,.2f}".format(float(amount))}$ to {recipient.username}')
-            return redirect('transfer_money')
-
-        return render(request, self.template_name, {'form': form})
-
-
-
-
-
-
-
 class TransactionCreateMixin(CreateView):
     template_name = 'transactions/transaction_form.html'
     model = Transaction
@@ -223,3 +191,22 @@ class LoanListView(LoginRequiredMixin,ListView):
         user_account = self.request.user.account
         queryset = Transaction.objects.filter(account=user_account,transaction_type=3)
         return queryset
+    
+
+
+class TransferMoneyView(LoginRequiredMixin,View):
+    form_class = TransferForm
+    template_name = 'transactions/transfer_form.html'
+
+    def get(self,request):
+        form = self.form_class(account = request.user.account)
+        return render(request,self.template_name,{'form': form})
+    
+    def post(self,request):
+        form = self.form_class(request.POST,account = request.user.account)
+        if form.is_valid():
+            recipient,amount = form.save(commit=False)
+            messages.success(request, f'Successfully transferred {"{:,.2f}".format(float(amount))}$ to {recipient.username}')
+            return redirect('transfer_money')
+
+        return render(request, self.template_name, {'form': form})

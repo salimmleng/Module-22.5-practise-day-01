@@ -31,6 +31,8 @@ class UserLogoutView(LogoutView):
         return reverse_lazy('home')
     
 
+
+
 class UserBankAccountUpdateView(View):
     template_name = 'accounts/profile.html'
 

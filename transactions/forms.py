@@ -81,26 +81,20 @@ class LoanRequestForm(TransactionForm):
 
 
 
-
-
-
-
-# modified
-
 class TransferForm(forms.Form):
-    recipient = forms.ModelChoiceField(queryset=User.objects.all(), empty_label=None, label='Recipient')
-    amount = forms.DecimalField(max_digits=10, decimal_places=2)
+    recipient = forms.ModelChoiceField(queryset=User.objects.all())
+    amount = forms.DecimalField(max_digits=12,decimal_places=2)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self,*args,**kwargs):
         self.sender_account = kwargs.pop('account')
-        super().__init__(*args, **kwargs)
+        super().__init__(*args,**kwargs)
 
     def clean_amount(self):
         amount = self.cleaned_data.get('amount')
         if self.sender_account.balance < amount:
             raise forms.ValidationError('Insufficient balance')
         return amount
-
+    
     def clean_recipient(self):
         recipient = self.cleaned_data.get('recipient')
         try:
@@ -108,17 +102,20 @@ class TransferForm(forms.Form):
         except UserBankAccount.DoesNotExist:
             raise forms.ValidationError('Recipient does not have a bank account')
         return recipient
-
-    def save(self, commit=True):
+    
+    def save(self,commit=True):
         recipient = self.cleaned_data.get('recipient')
         amount = self.cleaned_data.get('amount')
 
         sender_account = self.sender_account
         recipient_account = recipient.account
 
-        sender_account.balance -= amount
-        recipient_account.balance += amount
-        sender_account.save(update_fields=['balance'])
-        recipient_account.save(update_fields=['balance'])
+        sender_account.balance  -= amount
+        recipient_account.balance  += amount
 
-        return recipient, amount
+        sender_account.save(update_fields =['balance'])
+        recipient_account.save(update_fields =['balance'])
+
+        return recipient,amount
+
+
